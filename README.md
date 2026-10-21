@@ -19,3 +19,13 @@ npm run dev
 ## ประวัติ commit
 - commit แรกเป็นเวอร์ชัน Vanilla JS + Tailwind
 - commit ถัดมาปรับเป็น React (แยกเป็น component ใน src/components)
+
+## Week 6-8: MiniShop React (useEffect + API)
+เพิ่มจากเวอร์ชันก่อนหน้า:
+- หน้า Products ดึงข้อมูลจริงจาก Fake Store API (https://fakestoreapi.com/products) ด้วย `useEffect` + `fetch`
+- แยก Component ย่อย: `ProductCard`, `ProductList`, `ProductDetail`
+- มี Loading / Error / Empty State ครบ
+- Category Filter ใช้หมวดหมู่จริงจาก API
+- Sort ราคา น้อย→มาก และ มาก→น้อย (Bonus Challenge 2)
+- View Detail เปิด modal แสดงชื่อ ราคา รายละเอียด และ Rating (Bonus Challenge 3)
+- Add to Cart อัปเดตตัวเลขบนไอคอนตะกร้าที่ Header (Bonus Challenge 4)

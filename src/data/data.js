@@ -6,15 +6,6 @@ export const orders = [
   { id: 5, date: '2025-09-11', customer: 'Thanawat C.', items: 4, total: 1800, status: 'Pending' },
 ]
 
-export const products = [
-  { id: 1, name: 'Laptop', icon: '💻', price: 12900, rating: 4.3, reviews: 24, category: 'Electronics' },
-  { id: 2, name: 'Headphones', icon: '🎧', price: 1290, rating: 4.3, reviews: 18, category: 'Electronics' },
-  { id: 3, name: 'Backpack', icon: '🎒', price: 890, rating: 4.7, reviews: 32, category: 'Accessories' },
-  { id: 4, name: 'Smart Watch', icon: '⌚', price: 2990, rating: 4.4, reviews: 20, category: 'Accessories' },
-]
-
-export const categories = ['All Categories', 'Electronics', 'Accessories']
-
 export const statusColors = {
   Completed: 'bg-green-100 text-green-700',
   Processing: 'bg-blue-100 text-blue-700',

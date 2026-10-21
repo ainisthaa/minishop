@@ -1,15 +1,51 @@
-import { useState } from 'react'
-import { products, categories } from '../data/data.js'
+import { useState, useEffect } from 'react'
+import ProductList from './ProductList.jsx'
+import ProductDetail from './ProductDetail.jsx'
 
 function Products({ addToCart, openWorkshop }) {
-  const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('All Categories')
+  // State สำหรับข้อมูลจาก API
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const filtered = products.filter((product) => {
-    const matchName = product.name.toLowerCase().includes(search.toLowerCase())
-    const matchCategory = category === 'All Categories' || product.category === category
+  // State สำหรับ Filter / Sort / Detail
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('All')
+  const [sortOrder, setSortOrder] = useState('')
+  const [selectedProduct, setSelectedProduct] = useState(null)
+
+  // ดึงข้อมูลสินค้าจาก Fake Store API ตอน Component เริ่มทำงาน
+  useEffect(() => {
+    fetch('https://fakestoreapi.com/products')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('โหลดข้อมูลไม่สำเร็จ')
+        }
+        return response.json()
+      })
+      .then((data) => {
+        setProducts(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setError('ไม่สามารถโหลดข้อมูลได้')
+        setLoading(false)
+      })
+  }, [])
+
+  const categories = ['All', ...new Set(products.map((p) => p.category))]
+
+  let filtered = products.filter((product) => {
+    const matchName = product.title.toLowerCase().includes(search.toLowerCase())
+    const matchCategory = category === 'All' || product.category === category
     return matchName && matchCategory
   })
+
+  if (sortOrder === 'low-high') {
+    filtered = [...filtered].sort((a, b) => a.price - b.price)
+  } else if (sortOrder === 'high-low') {
+    filtered = [...filtered].sort((a, b) => b.price - a.price)
+  }
 
   return (
     <div>
@@ -31,39 +67,54 @@ function Products({ addToCart, openWorkshop }) {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="bg-white border border-gray-300 rounded-lg px-4 py-2 sm:w-56"
+          className="bg-white border border-gray-300 rounded-lg px-4 py-2 sm:w-56 capitalize"
         >
           {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c} className="capitalize">{c}</option>
           ))}
+        </select>
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+          className="bg-white border border-gray-300 rounded-lg px-4 py-2 sm:w-56"
+        >
+          <option value="">Sort by...</option>
+          <option value="low-high">Price: Low → High</option>
+          <option value="high-low">Price: High → Low</option>
         </select>
       </div>
 
-      {filtered.length === 0 && (
-        <p className="mt-6 text-gray-500">ไม่พบสินค้าที่ค้นหา</p>
+      {/* Loading State */}
+      {loading && (
+        <p className="mt-10 text-center text-gray-500">Loading products...</p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-        {filtered.map((product) => (
-          <div key={product.id} className="bg-white rounded-xl shadow p-5 hover:shadow-lg">
-            <div className="h-40 bg-gray-100 rounded-lg flex items-center justify-center text-5xl">
-              {product.icon}
-            </div>
-            <h3 className="text-lg font-bold mt-4">{product.name}</h3>
-            <p className="text-blue-600 font-bold mt-2">฿{product.price.toLocaleString()}</p>
-            <p className="mt-2">
-              <span className="text-yellow-500">★</span> {product.rating}{' '}
-              <span className="text-gray-400">({product.reviews})</span>
-            </p>
-            <button
-              onClick={() => addToCart(1)}
-              className="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-            >
-              Add to Cart
-            </button>
-          </div>
-        ))}
-      </div>
+      {/* Error State */}
+      {!loading && error && (
+        <p className="mt-10 text-center text-red-600">{error}</p>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && filtered.length === 0 && (
+        <p className="mt-10 text-center text-gray-500">ไม่พบสินค้าที่ค้นหา</p>
+      )}
+
+      {/* Success State */}
+      {!loading && !error && filtered.length > 0 && (
+        <div className="mt-6">
+          <ProductList
+            products={filtered}
+            onAddToCart={addToCart}
+            onViewDetail={setSelectedProduct}
+          />
+        </div>
+      )}
+
+      <ProductDetail
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onAddToCart={addToCart}
+      />
     </div>
   )
 }
